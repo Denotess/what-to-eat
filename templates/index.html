@@ -1,77 +1,36 @@
-{% if is_htmx %}
-    {% for meal in meals %}
-        <div>
-            <img src=" {{ meal.strMealThumb }}" width="100" height="100">
-            <button 
-                hx-get="{% url 'meal_details' %}?meal={{ meal.strMeal }}"
-                hx-target="body"
-                hx-swap="outerHTML"
-            >
-                {{ meal.strMeal }}
-            </button>
-            {% if meal.idMeal in favorite_ids %}
-                <button disabled>Favorited</button>
-            {% else %}
-                <a href="{% url 'add_favorites' %}?meal_id={{ meal.idMeal }}">
-                    Add to Favorites
-                </a>
-            {% endif %}
-        </div>  
-    {% endfor %}
-{% else %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js" integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F" crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>What To Eat</title>
-</head>
-    <body>
-        <form action="{% url 'search_results' %}" method="GET">
-            <div class="topnav">
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Search..."
-                    hx-get="/autocomplete/"
-                    hx-trigger="keyup changed delay:300ms"
-                    hx-target="#autocomplete-results"
-                    hx-swap="innerHTML"
-                    autocomplete="off"
-                >
-                <div id="autocomplete-results"></div>
-                <button type="submit">Search</button>
-            </div>
-        </form>
-        <form action="{% url 'favorites' %}" method="GET">
-            <button>Favorites</button>
-        </form>
+{% block title %}Home - What To Eat{% endblock %}
 
-        <div id="search-results"></div>
-
-        <form id="meal-form">
-            <label for="categories">Categories</label>
-            <select 
-            name="categories"
-            class="categories"
-            id="categories"
-            hx-get="{% url 'load_meals' %}"
-            hx-trigger="load, change"
-            hx-target="#results"
-            hx-swap="innerHTML"
-            hx-include="[name='categories']"
-            >
-                {% for c in categories %}
-                    <option value="{{ c }}">{{ c }}</option>
-                {% endfor %}
-            </select>
-        </form>
-        <div id="parent-div">
-            <h3>Results:</h3>
-            <div id="results"></div>
+{% block content %}
+    <section class="section">
+        <div class="section__header">
+            <h1 class="section__title">Discover Delicious Meals</h1>
+            <p class="section__subtitle">Browse by category to find your next favorite dish</p>
         </div>
-        </body>
-</html>
-{% endif %}
+        
+        <div style="max-width: 400px; margin: 0 auto 3rem;">
+            <form id="meal-form">
+                <label for="categories" class="sr-only">Select meal category</label>
+                <select
+                    name="categories"
+                    id="categories"
+                    class="select focus-ring"
+                    hx-get="{% url 'load_meals' %}"
+                    hx-trigger="load, change"
+                    hx-target="#results"
+                    hx-swap="innerHTML"
+                    hx-include="[name='categories']"
+                    aria-label="Select a meal category"
+                >
+                    <option value="">Choose a category...</option>
+                    {% for c in categories %}
+                         <option value="{{ c }}" {% if c == random_category %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        
+        <div id="results" class="grid grid--3" role="region" aria-live="polite" aria-label="Meal results"></div>
+    </section>
+{% endblock %}

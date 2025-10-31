@@ -2,12 +2,22 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
 from .utils import list_categories, filterByCategory, searchByName, searchByMealId
 from urllib.parse import urlparse, parse_qs
+from django.core.cache import cache
+import random
  
 
 
 def index(request):
-    categories = list_categories()
-    return render(request, "index.html", {"categories":categories})
+    categories = cache.get('meal_categories')
+    if not categories:
+        categories = list_categories()
+        cache.set('meal_categories', categories, 60 * 60)
+    
+    random_category = random.choice(categories) if categories else None
+    return render(request, "index.html", {
+        "categories": categories,
+        "random_category": random_category
+    })
 
 def load_meals(request):
     category = request.GET.get('categories')
@@ -17,7 +27,7 @@ def load_meals(request):
     favorite_ids = [fav['id'] for fav in favorites]
 
 
-    return render(request, "index.html", {
+    return render(request, "meals_partial.html", {
         "meals":meals,
         "is_htmx": True,
         "favorite_ids":favorite_ids
@@ -26,6 +36,14 @@ def load_meals(request):
 def meal_details(request):
     meal_name = request.GET.get('meal')
     response = searchByName(meal_name)
+
+    if not meal_name:
+        return redirect('index')
+    
+    response = searchByName(meal_name)
+    if not response or not response.get("meals"):
+        return HttpResponseNotFound("Meal not found")
+
     meal = response["meals"][0]
 
     ingredients = []
@@ -51,6 +69,9 @@ def meal_details(request):
         except Exception:
             youtube_id = ""
 
+    tags_raw = meal.get("strTags") or ""
+    tags_list = [tag.strip() for tag in tags_raw.split(',')] if tags_raw else []
+
 
     return render(request, "meal_detail.html", {"meal_name": meal_name,
                                                 "id": meal["idMeal"],
@@ -60,6 +81,7 @@ def meal_details(request):
                                                 "instructions": meal["strInstructions"],
                                                 "thumbnail": meal["strMealThumb"],
                                                 "tags": meal["strTags"],
+                                                "tags_list": tags_list,
                                                 "youtube": meal["strYoutube"],
                                                 "ingredients": ingredients,
                                                 "youtube_id": youtube_id})

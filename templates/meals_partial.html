@@ -1,0 +1,36 @@
+{% for meal in meals %}
+    <article class="card">
+        <img src="{{ meal.strMealThumb }}" alt="{{ meal.strMeal }}" class="card__img" loading="lazy">
+        <div class="card__body">
+            <h3 class="card__title">{{ meal.strMeal }}</h3>
+            <div class="card__meta">
+                {% if meal.strCategory %}
+                    <span class="chip">{{ meal.strCategory }}</span>
+                {% endif %}
+                {% if meal.strArea %}
+                    <span class="chip">{{ meal.strArea }}</span>
+                {% endif %}
+            </div>
+            <div class="card__actions">
+                <button
+                    class="btn btn--primary focus-ring"
+                    hx-get="{% url 'meal_details' %}?meal={{ meal.strMeal }}"
+                    hx-target="body"
+                    hx-swap="outerHTML"
+                    aria-label="View details for {{ meal.strMeal }}"
+                >
+                    View Recipe
+                </button>
+                {% if meal.idMeal in favorite_ids %}
+                    <button class="btn btn--ghost" disabled aria-label="{{ meal.strMeal }} is already favorited">
+                        ✓ Favorited
+                    </button>
+                {% else %}
+                    <a href="{% url 'add_favorites' %}?meal_id={{ meal.idMeal }}" class="btn btn--ghost focus-ring" aria-label="Add {{ meal.strMeal }} to favorites">
+                        Add to Favorites
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+{% endfor %}

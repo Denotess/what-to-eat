@@ -1,51 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js" integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F" crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results - What To Eat</title>
-</head>
-<body>
-    <h1>Search Results</h1>
-    
-    <a href="{% url 'index' %}">← Back to Home</a>
-    
-    <form action="{% url 'search_results' %}" method="GET" style="margin: 20px 0;">
-        <input 
-            type="text" 
-            name="search" 
-            placeholder="Search for meals..." 
-            value="{{ search_query }}"
-            required
-        >
-        <button type="submit">Search</button>
-    </form>
+{% extends 'base.html' %}
+
+{% block title %}Search Results for "{{ search_query }}" - What To Eat{% endblock %}
+
+{% block content %}
+    <div class="toolbar">
+        <div>
+            <a href="{% url 'index' %}" class="btn btn--ghost focus-ring">← Back to Home</a>
+        </div>
+        <h1 class="toolbar__title">
+            Results for "{{ search_query }}"
+        </h1>
+    </div>
 
     {% if meals %}
-        <h2>Found {{ meals|length }} meal(s) for "{{ search_query }}"</h2>
-        <div id="search-results">
+        <p style="color: var(--subtle); margin-bottom: 2rem;">
+            Found <strong>{{ meals|length }}</strong> meal{{ meals|length|pluralize }}
+        </p>
+        
+        <div id="search-results" class="grid grid--3" role="region" aria-live="polite" aria-label="Search results">
             {% for meal in meals %}
-                <div style="margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
-                    <img src="{{ meal.strMealThumb }}" width="150" height="150" alt="{{ meal.strMeal }}">
-                    <h3>{{ meal.strMeal }}</h3>
-                    <button 
-                        hx-get="{% url 'meal_details' %}?meal={{ meal.strMeal }}"
-                        hx-target="body"
-                        hx-swap="outerHTML"
-                        style="padding: 10px 20px; cursor: pointer;"
-                    >
-                        View Recipe
-                    </button>
-                </div>
+                <article class="card">
+                    <img src="{{ meal.strMealThumb }}" alt="{{ meal.strMeal }}" class="card__img" loading="lazy">
+                    <div class="card__body">
+                        <h2 class="card__title">{{ meal.strMeal }}</h2>
+                        <div class="card__meta">
+                            {% if meal.strCategory %}
+                                <span class="chip">{{ meal.strCategory }}</span>
+                            {% endif %}
+                            {% if meal.strArea %}
+                                <span class="chip">{{ meal.strArea }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="card__actions">
+                            <button
+                                class="btn btn--primary focus-ring"
+                                hx-get="{% url 'meal_details' %}?meal={{ meal.strMeal }}"
+                                hx-target="body"
+                                hx-swap="outerHTML"
+                                aria-label="View details for {{ meal.strMeal }}"
+                            >
+                                View Recipe
+                            </button>
+                        </div>
+                    </div>
+                </article>
             {% endfor %}
         </div>
     {% elif search_query %}
-        <p style="color: #666; font-size: 18px;">No meals found for "{{ search_query }}"</p>
-        <p>Try searching for something else!</p>
+        <div class="empty">
+            <div class="empty__icon">🔍</div>
+            <h2 class="empty__title">No meals found</h2>
+            <p class="empty__text">
+                We couldn't find any meals matching "{{ search_query }}". Try searching for something else!
+            </p>
+            <a href="{% url 'index' %}" class="btn btn--primary focus-ring">Browse All Meals</a>
+        </div>
     {% else %}
-        <p style="color: #666; font-size: 18px;">Please enter a search term</p>
+        <div class="empty">
+            <div class="empty__icon">🍽️</div>
+            <h2 class="empty__title">Start your search</h2>
+            <p class="empty__text">Enter a meal name or ingredient to find delicious recipes.</p>
+            <a href="{% url 'index' %}" class="btn btn--primary focus-ring">Browse Categories</a>
+        </div>
     {% endif %}
-
-</body>
-</html>
+{% endblock %}

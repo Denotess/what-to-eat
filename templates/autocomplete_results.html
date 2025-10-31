@@ -1,15 +1,22 @@
 {% if meals %}
-    <div class="autocomplete-dropdown">
-        {% for meal in meals %}
-            <div>
-                <a href="{% url 'meal_details' %}?meal={{ meal.strMeal }}">
-                    {{ meal.strMeal }}
-                </a>
-            </div>
-        {% endfor %}
-    </div>
+    {% for meal in meals %}
+        <a 
+            href="{% url 'meal_details' %}?meal={{ meal.strMeal }}" 
+            class="autocomplete__item focus-ring"
+            role="option"
+            aria-label="View {{ meal.strMeal }}"
+        >
+            <img 
+                src="{{ meal.strMealThumb }}" 
+                alt="" 
+                class="autocomplete__img"
+                loading="lazy"
+            >
+            <span class="autocomplete__text">{{ meal.strMeal }}</span>
+        </a>
+    {% endfor %}
 {% elif query and query|length >= 2 %}
-    <div class="autocomplete-dropdown">
-        <p>No results found for "{{ query }}"</p>
+    <div class="autocomplete__empty">
+        No results found for "{{ query }}"
     </div>
 {% endif %}

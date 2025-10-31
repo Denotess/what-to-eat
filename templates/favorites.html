@@ -1,46 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js" integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F" crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Favorites - What To Eat</title>
-</head>
-<body>
-    <a href="{% url 'index' %}">← Back to Home</a>
-    
-    <h1>My Favorites</h1>
-    
-    {% if meals %}
-        <p>You have {{ favorites_count }} favorite meal{{ favorites_count|pluralize }}</p>
-        
+{% extends 'base.html' %}
+
+{% block title %}My Favorites - What To Eat{% endblock %}
+
+{% block content %}
+    <div class="toolbar">
         <div>
+            <a href="{% url 'index' %}" class="btn btn--ghost focus-ring">← Back to Home</a>
+        </div>
+        <h1 class="toolbar__title">
+            My Favorites
+            {% if favorites_count > 0 %}
+                <span class="pill" style="font-size: 0.875rem; margin-left: 1rem;">{{ favorites_count }}</span>
+            {% endif %}
+        </h1>
+    </div>
+
+    {% if meals %}
+        <p style="color: var(--subtle); margin-bottom: 2rem;">
+            You have <strong>{{ favorites_count }}</strong> favorite meal{{ favorites_count|pluralize }}
+        </p>
+        
+        <div class="grid grid--3" role="region" aria-live="polite" aria-label="Favorite meals">
             {% for meal in meals %}
-                <div>
-                    <img src="{{ meal.thumb }}" alt="{{ meal.name }}" width="200" height="200">
-                    <h3>{{ meal.name }}</h3>
-                    <p>Category: {{ meal.category }}</p>
-                    
-                    <button 
-                        hx-get="{% url 'meal_details' %}?meal={{ meal.name }}"
-                        hx-target="body"
-                        hx-swap="outerHTML"
-                    >
-                        View Recipe
-                    </button>
-                    
-                    <a href="{% url 'remove_favorites' %}?meal_id={{ meal.id }}">
-                        Remove from Favorites
-                    </a>
-                </div>
-                <hr>
+                <article class="card">
+                    <img src="{{ meal.thumb }}" alt="{{ meal.name }}" class="card__img" loading="lazy">
+                    <div class="card__body">
+                        <h2 class="card__title">{{ meal.name }}</h2>
+                        <div class="card__meta">
+                            {% if meal.category %}
+                                <span class="chip">{{ meal.category }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="card__actions">
+                            <button
+                                class="btn btn--primary focus-ring"
+                                hx-get="{% url 'meal_details' %}?meal={{ meal.name }}"
+                                hx-target="body"
+                                hx-swap="outerHTML"
+                                aria-label="View details for {{ meal.name }}"
+                            >
+                                View Recipe
+                            </button>
+                            <a 
+                                href="{% url 'remove_favorites' %}?meal_id={{ meal.id }}" 
+                                class="btn btn--danger focus-ring"
+                                aria-label="Remove {{ meal.name }} from favorites"
+                            >
+                                Remove
+                            </a>
+                        </div>
+                    </div>
+                </article>
             {% endfor %}
         </div>
     {% else %}
-        <h2>No favorites yet!</h2>
-        <p>Start adding meals to your favorites to see them here.</p>
-        <a href="{% url 'index' %}">Browse Meals</a>
+        <div class="empty">
+            <div class="empty__icon">♥</div>
+            <h2 class="empty__title">No favorites yet!</h2>
+            <p class="empty__text">
+                Start adding meals to your favorites to see them here. Browse our collection and save your favorites!
+            </p>
+            <a href="{% url 'index' %}" class="btn btn--primary focus-ring">Browse Meals</a>
+        </div>
     {% endif %}
-
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js" integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites - What To Eat</title>
+</head>
+<body>
+    <a href="{% url 'index' %}">← Back to Home</a>
+    
+    <h1>My Favorites</h1>
+    
+    {% if meals %}
+        <p>You have {{ favorites_count }} favorite meal{{ favorites_count|pluralize }}</p>
+        
+        <div>
+            {% for meal in meals %}
+                <div>
+                    <img src="{{ meal.thumb }}" alt="{{ meal.name }}" width="200" height="200">
+                    <h3>{{ meal.name }}</h3>
+                    <p>Category: {{ meal.category }}</p>
+                    
+                    <button 
+                        hx-get="{% url 'meal_details' %}?meal={{ meal.name }}"
+                        hx-target="body"
+                        hx-swap="outerHTML"
+                    >
+                        View Recipe
+                    </button>
+                    
+                    <a href="{% url 'remove_favorites' %}?meal_id={{ meal.id }}">
+                        Remove from Favorites
+                    </a>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h2>No favorites yet!</h2>
+        <p>Start adding meals to your favorites to see them here.</p>
+        <a href="{% url 'index' %}">Browse Meals</a>
+    {% endif %}
+
+</body>
+</html>

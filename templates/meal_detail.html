@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js" integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ meal_name }}</title>
+</head>
+<body>
+    <button hx-get="{% url 'index' %}" hx-target="body" hx-swap="outerHTML">
+        Back to Categories
+    </button>
+    <h1>{{ meal_name }}</h1>
+    {% if youtube %}
+    <div>
+        <iframe 
+            width="560" 
+            height="315" 
+            src="https://www.youtube-nocookie.com/embed/{{ youtube_id }}"
+            referrerpolicy="strict-origin-when-cross-origin"
+            title="{{ meal_name }}" 
+            frameborder="0" 
+            allowfullscreen>
+        </iframe>
+    </div>
+    {% endif %}
+    <div>
+        <a href="{% url 'add_favorites' %}?meal_id={{ id }}">Add to Favorites</a>
+    </div>
+    <img src="{{ thumbnail }}" alt="{{ name }}" width="300">
+
+    <p><strong>ID:</strong> {{ id }}</p>
+    <p><strong>Category:</strong> {{ category }}</p>
+    <p><strong>Area:</strong> {{ area }}</p>
+    <p><strong>Tags:</strong> {{ tags }}</p>
+
+    <h3>Ingredients</h3>
+    <ul>
+        {% for item in ingredients %}
+            <li>{{ item.measure }} {{ item.ingredient }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Instructions</h3>
+    <p style="white-space: pre-line;">{{ instructions }}</p>
+
+</body>
+</html>

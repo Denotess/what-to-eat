@@ -1,0 +1,15 @@
+{% if meals %}
+    <div class="autocomplete-dropdown">
+        {% for meal in meals %}
+            <div>
+                <a href="{% url 'meal_details' %}?meal={{ meal.strMeal }}">
+                    {{ meal.strMeal }}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% elif query and query|length >= 2 %}
+    <div class="autocomplete-dropdown">
+        <p>No results found for "{{ query }}"</p>
+    </div>
+{% endif %}

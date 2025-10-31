@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js" integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - What To Eat</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    
+    <a href="{% url 'index' %}">← Back to Home</a>
+    
+    <form action="{% url 'search_results' %}" method="GET" style="margin: 20px 0;">
+        <input 
+            type="text" 
+            name="search" 
+            placeholder="Search for meals..." 
+            value="{{ search_query }}"
+            required
+        >
+        <button type="submit">Search</button>
+    </form>
+
+    {% if meals %}
+        <h2>Found {{ meals|length }} meal(s) for "{{ search_query }}"</h2>
+        <div id="search-results">
+            {% for meal in meals %}
+                <div style="margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+                    <img src="{{ meal.strMealThumb }}" width="150" height="150" alt="{{ meal.strMeal }}">
+                    <h3>{{ meal.strMeal }}</h3>
+                    <button 
+                        hx-get="{% url 'meal_details' %}?meal={{ meal.strMeal }}"
+                        hx-target="body"
+                        hx-swap="outerHTML"
+                        style="padding: 10px 20px; cursor: pointer;"
+                    >
+                        View Recipe
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif search_query %}
+        <p style="color: #666; font-size: 18px;">No meals found for "{{ search_query }}"</p>
+        <p>Try searching for something else!</p>
+    {% else %}
+        <p style="color: #666; font-size: 18px;">Please enter a search term</p>
+    {% endif %}
+
+</body>
+</html>
